@@ -79,4 +79,10 @@ TEST(GetPartInfo, PartClassification) {
 TEST(Graph, Constructor) {
   const Ge::PartBuilder builder(model_file.c_str());
   Ge::AdjacencyGraph graph(builder);
+
+  // for (const auto &conn : graph.GetConnectionSet())
+  // {
+  //   conn.Print();
+  // }
+  
 }

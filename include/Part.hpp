@@ -17,7 +17,7 @@ class Part {
     STIFF,
   };
 
-  Part(const TopoDS_Shape &shape, const std::string &name);
+  Part(TopoDS_Shape &&shape, const std::string &name);
   ~Part();
   void Print() const;
 
@@ -37,7 +37,7 @@ class Part {
   std::tuple<double, gp_Pnt> MakeVolumnProperties(const TopoDS_Shape &shape) const;
   std::tuple<double, gp_Dir> MakeAreaProperties(const TopoDS_Shape &shape) const;
 
-  const TopoDS_Shape &shape_;
+  TopoDS_Shape shape_;
   Type type_;
 
   std::string name_;

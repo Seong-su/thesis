@@ -25,12 +25,13 @@
 
 namespace Ge{
 
-Part::Part(const TopoDS_Shape &shape, const std::string &name) : shape_{shape}, name_(name) {
-  box_ = MakeOBB(shape);
+Part::Part(TopoDS_Shape &&shape, const std::string &name)
+    : shape_{std::forward<TopoDS_Shape>(shape)}, name_(name) {
+  box_ = MakeOBB(shape_);
   std::tie(length_, breadth_, thickness_) = SortDimension(box_);
   elongation_ = breadth_ / length_;
-  std::tie(volume_, center_) = MakeVolumnProperties(shape);
-  std::tie(area_, normal_) = MakeAreaProperties(shape);
+  std::tie(volume_, center_) = MakeVolumnProperties(shape_);
+  std::tie(area_, normal_) = MakeAreaProperties(shape_);
   metric_ = area_ * elongation_;
 }
 
@@ -126,7 +127,7 @@ PartBuilder::PartBuilder(const std::string &filename) {
     if (lbl.FindAttribute(TDataStd_Name::GetID(), att)) {
       name_att = Handle(TDataStd_Name)::DownCast(att);
       name = name_att->Get();
-      Part part(shape, name.ToCString());
+      Part part(std::move(shape), name.ToCString());
       AddPart(std::move(part));
     }
 	}
