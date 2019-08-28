@@ -15,6 +15,7 @@ class Connection {
 
  private:
   const Part &left_, &right_;
+  double length_;
 };
 
 class AdjacencyGraph {

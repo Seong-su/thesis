@@ -21,13 +21,14 @@ class Part {
   ~Part();
   void Print() const;
 
-  std::string Name() const { return name_; }
+  const TopoDS_Shape &Shape() const { return shape_; }
+  const std::string &Name() const { return name_; }
+  double Length() const { return length_; }
   double Area() const { return area_; }
   double Elongation() const { return elongation_; }
   double Metric() const { return metric_; }
   
   std::string GetType() const;
-
   void SetType(Type type) { type_ = type; }
 
  private:

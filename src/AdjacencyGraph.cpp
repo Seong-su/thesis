@@ -1,9 +1,18 @@
 #include <AdjacencyGraph.hpp>
 
+#include <TopoDS.hxx>
+#include <BRepAlgoAPI_Common.hxx>
+#include <BRepBndLib.hxx>
 
 namespace Ge {
 
 Connection::Connection(const Part &left, const Part &right) : left_{left}, right_{right} {
+  BRepAlgoAPI_Common cmn_builder(left.Shape(), right.Shape());
+  cmn_builder.Check();
+  if (cmn_builder.IsDone() && !cmn_builder.HasErrors() && cmn_builder.HasGenerated()) {
+    Part intersection(cmn_builder.Shape(), "");
+    length_ = intersection.Length();
+  }
 }
 
 Connection::~Connection() {
