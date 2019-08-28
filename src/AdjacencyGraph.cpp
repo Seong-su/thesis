@@ -1,8 +1,11 @@
 #include <AdjacencyGraph.hpp>
 
-#include <TopoDS.hxx>
-#include <BRepAlgoAPI_Common.hxx>
-#include <BRepBndLib.hxx>
+#include <BRepAlgoAPI_Section.hxx>
+//#include <BRepAlgoAPI_Common.hxx>
+
+#include <BRepMesh_IncrementalMesh.hxx>
+#include <BRepExtrema_ShapeProximity.hxx>
+#include <BRepExtrema_MapOfIntegerPackedMapOfInteger.hxx>
 
 namespace Ge {
 
@@ -15,16 +18,28 @@ Connection::~Connection() {
 }
 
 std::tuple<bool, double> Connection::Connected(const Part &left, const Part &right) {
-  bool result = false;
-  bool length = 0.0;
-  BRepAlgoAPI_Common cmn_builder(left.Shape(), right.Shape());
-  // cmn_builder.Check();
-  // if (cmn_builder.IsDone() && !cmn_builder.HasErrors() && cmn_builder.HasGenerated()) {
-  //   Part intersection(cmn_builder.Shape(), "");
-  //   length = intersection.Length();
-  //   result = true;
-  // }
+  static constexpr Standard_Real linear_deflection = 1.0e-2;
+  static constexpr Standard_Real angular_deflection = 1.0e-2;
+  static constexpr Standard_Real tolerance = 1.0e-1;
 
+  bool result = false;
+  double length = 0.0;
+
+  BRepMesh_IncrementalMesh mesh1(left.Shape(), linear_deflection);
+  BRepMesh_IncrementalMesh mesh2(right.Shape(), linear_deflection);
+  BRepExtrema_ShapeProximity proximity(mesh1.Shape(), mesh2.Shape(), tolerance);
+  proximity.Perform();
+  auto overlap = proximity.OverlapSubShapes1();
+  if (!overlap.IsEmpty()) {
+    BRepAlgoAPI_Section builder(left.Shape(), right.Shape());
+    builder.Build();
+    TopoDS_Shape shape = builder.Shape();
+    Part intersection(std::move(shape), "");
+    intersection.Print();
+    length = intersection.Length();
+    result = true;
+  }
+  
   return std::make_tuple(result, length);
 }
 
@@ -46,8 +61,9 @@ AdjacencyGraph::AdjacencyGraph(const PartBuilder &part_builder) : part_builder_{
       bool is_connected;
       double length;
       std::tie(is_connected, length) = Connection::Connected(part1, part2);
-      // if (is_connected)
-      //   connection_set_.emplace(part1, part2, length);
+      if (is_connected) {
+        connection_list_.emplace_back(part1, part2, length);
+      }
     }
   }
   

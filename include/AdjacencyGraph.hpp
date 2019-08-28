@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <set>
+#include <list>
 #include <tuple>
 
 #include <Part.hpp>
@@ -17,6 +17,8 @@ class Connection {
   void Print() const;
 
   double Length() const { return length_; }
+  const Part &Left() const { return left_; }
+  const Part &Right() const { return right_; }
 
  private:
   double length_;
@@ -25,22 +27,16 @@ class Connection {
 
 class AdjacencyGraph {
  public:
-  struct Comparator {
-    bool operator() (const Connection &lhs, const Connection &rhs) const {
-        return lhs.Length() < rhs.Length();
-    }
-  };
-
-  using ConnectionSet = std::set<Connection, Comparator>;
+  using ConnectionList = std::list<Connection>;
 
   AdjacencyGraph(const PartBuilder &part_builder);
   ~AdjacencyGraph();
 
-  const ConnectionSet &GetConnectionSet() const { return connection_set_; }
+  const ConnectionList &GetConnectionList() const { return connection_list_; }
 
  private:
   const PartBuilder &part_builder_;
-  ConnectionSet connection_set_;
+  ConnectionList connection_list_;
 };
 
 } // namespace Ge
