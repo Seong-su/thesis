@@ -1,16 +1,20 @@
 #pragma once
 
+#include <string>
+
 #include <Part.hpp>
 
 namespace Ge {
 
 class Connection {
  public:
-  Connection(/* args */);
+  Connection(const Part &left, const Part &right);
   ~Connection();
 
+  bool Contains(const std::string &name) const;
+
  private:
-  /* data */
+  const Part &left_, &right_;
 };
 
 class AdjacencyGraph {
